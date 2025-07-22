@@ -1,0 +1,19 @@
+---
+- name: Update all installed packages (including security and general updates)
+  hosts: all
+  become: true
+  tasks:
+    - name: Apply all available updates
+      yum:
+        name: '*'
+        state: latest
+
+    - name: Check if reboot is required
+      command: needs-restarting -r
+      register: reboot_required
+      ignore_errors: true
+
+    - name: Reboot server if required
+      reboot:
+      when: reboot_required.rc == 1
+

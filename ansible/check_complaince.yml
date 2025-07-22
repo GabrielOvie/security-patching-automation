@@ -1,0 +1,188 @@
+---
+- name: CIS Compliance Scan Across All RHEL Nodes
+  hosts: all
+  become: true
+  vars:
+    datastream: "/usr/share/xml/scap/ssg/content/ssg-rhel10-ds.xml"
+    profile_id: "xccdf_org.ssgproject.content_profile_cis"
+    report_dir: "/tmp"
+    github_repo: "https://github.com/GabrielOvie/security-compliance-automation.git"
+    branch: "master"
+
+  tasks:
+    - name: Ensure required packages are installed
+      package:
+        name:
+          - openscap-scanner
+          - scap-security-guide
+          - git
+        state: present
+
+    - name: Run OpenSCAP CIS compliance scan
+      command: >
+        oscap xccdf eval
+        --profile {{ profile_id }}
+        --results {{ report_dir }}/results.xml
+        --report {{ report_dir }}/report.html
+        {{ datastream }}
+      register: scan
+      ignore_errors: yes
+
+    - name: Extract failed rules from report into summary.txt
+      shell: |
+        grep -A2 "result=\"fail\"" {{ report_dir }}/report.html | \
+        grep "title=" | \
+        sed 's/.*title=\"\([^\"]*\)\".*/\1/' > {{ report_dir }}/summary.txt
+      when: scan.rc in [0,2]
+
+    - name: Create local reports folder (if not exists)
+      delegate_to: localhost
+      run_once: true
+      file:
+        path: ./reports
+        state: directory
+
+    - name: Fetch reports from remote nodes
+      fetch:
+        src: "{{ item }}"
+        dest: "./reports/{{ inventory_hostname }}-{{ item | basename }}"
+        flat: yes
+      loop:
+        - "{{ report_dir }}/results.xml"
+        - "{{ report_dir }}/report.html"
+        - "{{ report_dir }}/summary.txt"
+      when: scan.rc in [0,2]
+
+    - name: Push reports to GitHub
+      delegate_to: localhost
+      run_once: true
+      shell: |
+        set -e
+        cd reports
+        if [ ! -d ".git" ]; then
+          git clone -b {{ branch }} {{ github_repo }} .
+        fi
+        git pull
+        git add .
+        git commit -m "CIS compliance scan {{ ansible_date_time.iso8601 }}"
+        git push origin {{ branch }}
+      args:
+        chdir: ./reports
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
