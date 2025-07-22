@@ -1,0 +1,17 @@
+---
+- 
+  hosts: all
+  become: true
+
+  tasks:
+
+    - name: Check Profile
+      command: "oscap info /usr/share/xml/scap/ssg/content/ssg-rhel10-ds.xml"
+      register: profile
+
+    - name: Test
+      debug:
+        var: profile
+
+
+

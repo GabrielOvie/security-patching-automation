@@ -1,0 +1,12 @@
+---
+- name: Install OpenSCAP tools on managed nodes
+  hosts: all
+  become: true
+  tasks:
+    - name: Install openscap-scanner and scap-security-guide
+      dnf:
+        name:
+          - openscap-scanner
+          - scap-security-guide
+        state: present
+

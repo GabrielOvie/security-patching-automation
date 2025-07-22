@@ -1,0 +1,14 @@
+---
+- 
+  hosts: all
+  become: true
+
+  tasks:
+
+    - name: Ping all hosts
+      ansible.builtin.ping:
+         
+    - name: Debug
+      debug:
+        msg: 
+

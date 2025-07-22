@@ -1,0 +1,9 @@
+*.retry
+*.log
+*.pyc
+__pycache__/
+*.swp
+*.tmp
+*.bak
+inventory
+secrets.yml

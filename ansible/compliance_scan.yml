@@ -1,0 +1,19 @@
+---
+- name: OpenSCAP Compliance Scan (RHEL 10 standard profile)
+  hosts: all
+  become: true
+  tasks:
+    - name: Execute OpenSCAP scan for RHEL 10
+      command: >
+        oscap xccdf eval
+        --profile xccdf_org.ssgproject.content_profile_standard
+        --results /tmp/results.xml
+        --report /tmp/report.html
+        /usr/share/xml/scap/ssg/content/ssg-rhel10-ds.xml
+
+    - name: Fetch compliance HTML report
+      fetch:
+        src: /tmp/report.html
+        dest: ./reports/{{ inventory_hostname }}-compliance-report.html
+        flat: yes
+

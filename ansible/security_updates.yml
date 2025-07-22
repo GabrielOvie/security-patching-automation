@@ -1,0 +1,20 @@
+---
+- name: Apply Security Updates to RHEL Systems
+  hosts: all
+  become: true
+  tasks:
+    - name: Install all available security updates
+      yum:
+        name: '*'
+        security: true
+        state: latest
+
+    - name: Check system reboot requirement after updates
+      command: needs-restarting -r
+      register: reboot_required
+      ignore_errors: true
+
+    - name: Reboot if required
+      reboot:
+      when: reboot_required.rc == 1
+
